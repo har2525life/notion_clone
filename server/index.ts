@@ -87,7 +87,8 @@ app.post(
       connection.query(sql);
       console.log("sql", sql);
       // JWT 発行
-      const token = Jwt.sign({ id: uid }, "notion_clone_token", {
+      const secret_token_key = process.env.TOKEN_SECRET_KEY
+      const token = Jwt.sign({ id: uid }, `${secret_token_key}`, {
         expiresIn: "24h",
       });
 
