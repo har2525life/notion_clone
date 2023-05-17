@@ -14,6 +14,12 @@ type ReturnUserInfo = {
   username: string;
 };
 
+type GetUserInfo = {
+  id: string;
+  username: string;
+  password: string;
+};
+
 export function userRegister(req: express.Request, res: express.Response) {
   // パスワードの受け取り
   const { username, password }: UserRegister = req.body;
@@ -42,6 +48,55 @@ export function userRegister(req: express.Request, res: express.Response) {
 
     return res.status(200).json({ userInfo, token });
   } catch (error) {
-    console.log(error);
+    return res.status(500).json(error);
+  }
+}
+
+export async function userLogin(req: express.Request, res: express.Response) {
+  const user: UserRegister = req.body;
+
+  try {
+    const sql = `SELECT * FROM user WHERE username="${user.username}"`;
+    mysqlConnection.query(sql, async (error: any, result: GetUserInfo[]) => {
+      if (error) return res.status(500).json(error);
+      if (Object.keys(result).length > 0) {
+        const { id, username, password } = result[0];
+
+        const decryptedPassword = await CryptoJS.AES.decrypt(
+          password,
+          process.env.SECRET_KEY
+        ).toString(CryptoJS.enc.Utf8);
+
+        if (user.password !== decryptedPassword) {
+          return res.status(401).json({
+            errors: {
+              param: "password",
+              message: "パスワードが無効です",
+            },
+          });
+        }
+
+        // JWT 発行
+        const secret_token_key = process.env.TOKEN_SECRET_KEY;
+        const token = Jwt.sign({ id }, `${secret_token_key}`, {
+          expiresIn: "24h",
+        });
+
+        return res.status(201).json({
+          id,
+          username,
+          token,
+        });
+      } else {
+        return res.status(401).json({
+          errors: {
+            param: "username",
+            message: "ユーザー名が無効です",
+          },
+        });
+      }
+    });
+  } catch (error) {
+    return res.status(500).json(error);
   }
 }
