@@ -21,7 +21,7 @@ router.post(
     .isLength({ min: 8 })
     .withMessage("パスワードは8文字以上である必要があります"),
   body("username").custom(async (value) => {
-    console.log("value", value);
+    // console.log("value", value);
     const sql = `SELECT * FROM user WHERE username="${value}"`;
     return await mysqlConnection
       .promise()

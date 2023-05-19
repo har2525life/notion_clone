@@ -33,7 +33,7 @@ export function userRegister(req: express.Request, res: express.Response) {
     const uid = uuid();
     const sql = `INSERT INTO user(id, username, password) VALUES("${uid}", "${username}", "${encryptionPassword}")`;
     mysqlConnection.query(sql);
-    console.log("sql", sql);
+    // console.log("sql", sql);
     // JWT 発行
     const secret_token_key = process.env.TOKEN_SECRET_KEY;
     const token = Jwt.sign({ id: uid }, `${secret_token_key}`, {
