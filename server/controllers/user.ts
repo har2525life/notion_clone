@@ -69,10 +69,12 @@ export async function userLogin(req: express.Request, res: express.Response) {
 
         if (user.password !== decryptedPassword) {
           return res.status(401).json({
-            errors: {
-              param: "password",
-              message: "パスワードが無効です",
-            },
+            errors: [
+              {
+                path: "password",
+                msg: "パスワードが無効です",
+              },
+            ],
           });
         }
 
@@ -89,10 +91,12 @@ export async function userLogin(req: express.Request, res: express.Response) {
         });
       } else {
         return res.status(401).json({
-          errors: {
-            param: "username",
-            message: "ユーザー名が無効です",
-          },
+          errors: [
+            {
+              path: "username",
+              msg: "ユーザー名が無効です",
+            },
+          ],
         });
       }
     });
